@@ -1,0 +1,42 @@
+IssueKey,Title,Type,Epic,SP,Priority,OwnerRole,DependsOn,Sprint
+MS-001,Initialize Next.js + TypeScript repo structure and CI hooks,Story,EPIC-00,3,P0,Frontend Engineer,,S1
+MS-002,Publish engineering standards and ADR workflow,Story,EPIC-00,2,P0,Tech Lead / Backend Engineer,MS-001,S1
+MS-003,Add observability baseline and error handling shell,Story,EPIC-00,3,P1,Backend Engineer,MS-001,S1
+MS-004,Define and enforce performance + accessibility budgets,Story,EPIC-00,2,P1,QA/Automation + Design System Engineer,MS-001,S1
+MS-101,Implement semantic design token system,Story,EPIC-10,5,P0,Design System Engineer,MS-001,S1
+MS-102,Build theme primitives with dark-ready token contract,Story,EPIC-10,3,P0,Design System Engineer,MS-101,S2
+MS-103,Write design-system governance and contribution workflow,Story,EPIC-10,3,P0,Design System Engineer + Tech Lead,MS-101,S1
+MS-111,Complete MVP component inventory audit from PRD,Story,EPIC-11,3,P0,Design System Engineer + Frontend Engineer,MS-101|MS-103,S1
+MS-112,Build atomic components set with typed APIs and stories,Story,EPIC-11,8,P0,Design System Engineer + Frontend Engineer,MS-102,S2
+MS-113,Build custom interaction primitives (no native browser widgets),Story,EPIC-11,8,P0,Design System Engineer + Frontend Engineer,MS-112,S2
+MS-114,Build molecules and organisms required for MVP composition,Story,EPIC-11,5,P1,Frontend Engineer,MS-112|MS-113,S2
+MS-115,Build reusable templates for public and admin shells,Story,EPIC-11,3,P1,Frontend Engineer,MS-114,S2
+MS-201,Implement domain schema and reversible migrations,Story,EPIC-20,8,P0,Backend Engineer,MS-001,S2
+MS-202,Seed curated initial data set for 3-5 officials,Story,EPIC-20,3,P0,Backend Engineer,MS-201,S3
+MS-203,Enforce append-only status history and audit trail integrity,Story,EPIC-20,5,P0,Backend Engineer,MS-201,S3
+MS-211,Implement scoring service and snapshot writer,Story,EPIC-21,5,P0,Backend Engineer,MS-202|MS-203,S3
+MS-212,Add time-aware trend indicator (on_track/watch/behind),Story,EPIC-21,3,P1,Backend Engineer,MS-211,S3
+MS-301,Deliver search API with filters and pagination,Story,EPIC-30,5,P0,Backend Engineer,MS-202,S3
+MS-302,Deliver official profile aggregate API,Story,EPIC-30,5,P0,Backend Engineer,MS-202|MS-211|MS-212,S3
+MS-303,Deliver official promises list API with filters and sort,Story,EPIC-30,5,P0,Backend Engineer,MS-202|MS-203|MS-301,S4
+MS-304,Deliver promise detail API with timeline and provenance,Story,EPIC-30,5,P0,Backend Engineer,MS-203|MS-301,S4
+MS-305,Deliver score history API for chart consumption,Story,EPIC-30,3,P1,Backend Engineer,MS-211|MS-212,S4
+MS-311,Implement RBAC middleware and admin auth session integration,Story,EPIC-31,5,P0,Backend Engineer,MS-001|MS-201,S5
+MS-312,Deliver admin CRUD APIs for officials/promises/evidence events,Story,EPIC-31,5,P0,Backend Engineer,MS-311|MS-201,S5
+MS-313,Deliver status update API with mandatory rationale and source linkage,Story,EPIC-31,3,P0,Backend Engineer,MS-311|MS-203,S5
+MS-314,Deliver admin audit query API,Story,EPIC-31,2,P1,Backend Engineer,MS-311|MS-203,S5
+MS-401,Build public search and browse page from shared components,Story,EPIC-40,5,P0,Frontend Engineer,MS-114|MS-115|MS-301|MS-303,S4
+MS-402,Build official profile page from shared templates and organisms,Story,EPIC-40,5,P0,Frontend Engineer,MS-115|MS-302|MS-303,S4
+MS-403,Build promise detail page,Story,EPIC-40,5,P1,Frontend Engineer,MS-115|MS-304,S5
+MS-404,Build score explainability panel,Story,EPIC-40,3,P1,Frontend Engineer,MS-302|MS-305,S4
+MS-411,Build admin dashboard shell and protected navigation,Story,EPIC-41,5,P0,Frontend Engineer,MS-115|MS-311,S5
+MS-412,Build official and promise editor forms using custom field components,Story,EPIC-41,5,P0,Frontend Engineer,MS-312|MS-113|MS-114|MS-411,S5
+MS-413,Build status update workflow with evidence attachment,Story,EPIC-41,5,P0,Frontend Engineer,MS-313|MS-412,S5
+MS-414,Build audit log viewer for admin users,Story,EPIC-41,3,P1,Frontend Engineer,MS-314|MS-411,S5
+MS-501,Implement CDN + API cache strategy for public read paths,Story,EPIC-50,3,P0,Backend Engineer + DevOps/SRE,MS-301|MS-302|MS-303|MS-304|MS-305,S6
+MS-502,Tune DB indexes and query plans for key search/profile paths,Story,EPIC-50,3,P0,Backend Engineer,MS-501,S6
+MS-503,Run WCAG 2.1 AA audit and remediate critical/high accessibility issues,Story,EPIC-50,5,P0,Frontend Engineer + Design System Engineer + QA,MS-401|MS-402|MS-412|MS-413|MS-414,S6
+MS-504,Execute backup/restore and disaster recovery rehearsal,Story,EPIC-50,3,P0,DevOps/SRE + Backend Engineer,MS-201,S6
+MS-511,Finalize production environment configuration and secrets policy,Story,EPIC-51,2,P0,DevOps/SRE,,S6
+MS-512,Create launch checklist and operational runbook,Story,EPIC-51,2,P0,Tech Lead/PM + DevOps/SRE,MS-501|MS-502|MS-503|MS-504|MS-511,S6
+MS-513,Produce UAT signoff package mapped to PRD requirements,Story,EPIC-51,2,P1,QA/Automation + PM,MS-501|MS-502|MS-503|MS-504|MS-512,S6

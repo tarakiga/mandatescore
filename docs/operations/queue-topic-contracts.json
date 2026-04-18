@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mandatescore.dev/contracts/queue-topic-contracts.json",
+  "title": "MandateScore Queue Topic Contracts",
+  "type": "object",
+  "required": [
+    "topics"
+  ],
+  "properties": {
+    "topics": {
+      "type": "object",
+      "required": [
+        "source.discovered.v1",
+        "document.fetched.v1",
+        "document.parsed.v1",
+        "promise.extracted.v1",
+        "evidence.created.v1",
+        "promise.evidence_linked.v1",
+        "promise.status_computed.v1",
+        "review.decision.v1",
+        "score.recomputed.v1",
+        "trend.recomputed.v1",
+        "publish.refresh_requested.v1",
+        "publish.completed.v1"
+      ],
+      "properties": {
+        "source.discovered.v1": { "$ref": "#/$defs/sourceDiscoveredV1" },
+        "document.fetched.v1": { "$ref": "#/$defs/documentFetchedV1" },
+        "document.parsed.v1": { "$ref": "#/$defs/documentParsedV1" },
+        "promise.extracted.v1": { "$ref": "#/$defs/promiseExtractedV1" },
+        "evidence.created.v1": { "$ref": "#/$defs/evidenceCreatedV1" },
+        "promise.evidence_linked.v1": { "$ref": "#/$defs/promiseEvidenceLinkedV1" },
+        "promise.status_computed.v1": { "$ref": "#/$defs/promiseStatusComputedV1" },
+        "review.decision.v1": { "$ref": "#/$defs/reviewDecisionV1" },
+        "score.recomputed.v1": { "$ref": "#/$defs/scoreRecomputedV1" },
+        "trend.recomputed.v1": { "$ref": "#/$defs/trendRecomputedV1" },
+        "publish.refresh_requested.v1": { "$ref": "#/$defs/publishRefreshRequestedV1" },
+        "publish.completed.v1": { "$ref": "#/$defs/publishCompletedV1" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "eventEnvelope": {
+      "type": "object",
+      "required": [
+        "event_id",
+        "trace_id",
+        "occurred_at",
+        "schema_version",
+        "payload"
+      ],
+      "properties": {
+        "event_id": { "type": "string", "format": "uuid" },
+        "trace_id": { "type": "string", "minLength": 8 },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "schema_version": { "type": "string", "const": "v1" },
+        "payload": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "sourceDiscoveredV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["source_registry_id", "source_url", "source_published_at"],
+              "properties": {
+                "source_registry_id": { "type": "string", "format": "uuid" },
+                "source_url": { "type": "string", "format": "uri" },
+                "source_published_at": { "type": "string", "format": "date-time" }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "documentFetchedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["source_document_id", "content_hash", "blob_path", "mime_type", "language_code"],
+              "properties": {
+                "source_document_id": { "type": "string", "format": "uuid" },
+                "content_hash": { "type": "string", "minLength": 32 },
+                "blob_path": { "type": "string", "minLength": 3 },
+                "mime_type": { "type": "string", "minLength": 3 },
+                "language_code": { "type": "string", "minLength": 2, "maxLength": 12 }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "documentParsedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["source_document_id", "block_count", "parse_quality_score"],
+              "properties": {
+                "source_document_id": { "type": "string", "format": "uuid" },
+                "block_count": { "type": "integer", "minimum": 0 },
+                "parse_quality_score": { "type": "number", "minimum": 0, "maximum": 1 }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "promiseExtractedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["promise_id", "official_id", "promise_key", "confidence"],
+              "properties": {
+                "promise_id": { "type": "string", "format": "uuid" },
+                "official_id": { "type": "string", "format": "uuid" },
+                "promise_key": { "type": "string", "minLength": 2 },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "evidenceCreatedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["evidence_item_id", "source_document_id", "evidence_type"],
+              "properties": {
+                "evidence_item_id": { "type": "string", "format": "uuid" },
+                "source_document_id": { "type": "string", "format": "uuid" },
+                "evidence_type": {
+                  "type": "string",
+                  "enum": ["law", "budget", "report", "speech", "oversight", "factcheck"]
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "promiseEvidenceLinkedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["promise_id", "evidence_item_id", "confidence", "requires_review"],
+              "properties": {
+                "promise_id": { "type": "string", "format": "uuid" },
+                "evidence_item_id": { "type": "string", "format": "uuid" },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+                "requires_review": { "type": "boolean" }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "promiseStatusComputedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["promise_id", "status", "confidence", "explanation", "requires_review"],
+              "properties": {
+                "promise_id": { "type": "string", "format": "uuid" },
+                "status": { "type": "string", "enum": ["kept", "in_progress", "broken"] },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+                "explanation": { "type": "string", "minLength": 8 },
+                "requires_review": { "type": "boolean" }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "reviewDecisionV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["entity_type", "entity_id", "decision", "reviewer_id", "notes"],
+              "properties": {
+                "entity_type": { "type": "string", "enum": ["promise", "link", "status"] },
+                "entity_id": { "type": "string", "format": "uuid" },
+                "decision": { "type": "string", "enum": ["approve", "reject", "override"] },
+                "reviewer_id": { "type": "string", "minLength": 3 },
+                "notes": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "scoreRecomputedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["official_id", "mandate_score", "kept_count", "in_progress_count", "broken_count"],
+              "properties": {
+                "official_id": { "type": "string", "format": "uuid" },
+                "mandate_score": { "type": "number", "minimum": 0, "maximum": 100 },
+                "kept_count": { "type": "integer", "minimum": 0 },
+                "in_progress_count": { "type": "integer", "minimum": 0 },
+                "broken_count": { "type": "integer", "minimum": 0 }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "trendRecomputedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["official_id", "trend_score", "formula_version", "signals"],
+              "properties": {
+                "official_id": { "type": "string", "format": "uuid" },
+                "trend_score": { "type": "number", "minimum": 0, "maximum": 100 },
+                "formula_version": { "type": "string", "minLength": 3 },
+                "signals": {
+                  "type": "object",
+                  "required": [
+                    "search_volume_index",
+                    "recency_index",
+                    "evidence_velocity_index",
+                    "score_movement_index"
+                  ],
+                  "properties": {
+                    "search_volume_index": { "type": "number", "minimum": 0, "maximum": 100 },
+                    "recency_index": { "type": "number", "minimum": 0, "maximum": 100 },
+                    "evidence_velocity_index": { "type": "number", "minimum": 0, "maximum": 100 },
+                    "score_movement_index": { "type": "number", "minimum": 0, "maximum": 100 }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "publishRefreshRequestedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["official_id", "reason"],
+              "properties": {
+                "official_id": { "type": "string", "format": "uuid" },
+                "reason": { "type": "string", "minLength": 2 }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    },
+    "publishCompletedV1": {
+      "allOf": [
+        { "$ref": "#/$defs/eventEnvelope" },
+        {
+          "properties": {
+            "payload": {
+              "type": "object",
+              "required": ["official_id", "published_at", "read_model_version"],
+              "properties": {
+                "official_id": { "type": "string", "format": "uuid" },
+                "published_at": { "type": "string", "format": "date-time" },
+                "read_model_version": { "type": "string", "minLength": 2 }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      ]
+    }
+  }
+}
