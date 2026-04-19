@@ -46,6 +46,12 @@ class PostgresPromiseStore implements PromiseStore {
     readonly sourceDocumentId?: string;
     readonly promises: readonly PromiseCandidate[];
   }): Promise<readonly SavedPromiseRecord[]> {
+    const officialId = toOfficialUuid(input.officialId);
+    if (!officialId) {
+      throw new Error(`Invalid officialId for postgres mode: "${input.officialId}"`);
+    }
+    const normalizedSourceDocumentId = toOptionalUuid(input.sourceDocumentId);
+
     const saved: SavedPromiseRecord[] = [];
     for (const promise of input.promises) {
       const promiseId = crypto.randomUUID();
@@ -58,18 +64,18 @@ class PostgresPromiseStore implements PromiseStore {
         `,
         [
           promiseId,
-          input.officialId,
+          officialId,
           promise.promiseKey,
           promise.statementText,
-          input.sourceDocumentId ?? null,
+          normalizedSourceDocumentId,
           promise.extractionConfidence,
           promise.extractionModelVersion
         ]
       );
       saved.push({
         promiseId,
-        officialId: input.officialId,
-        sourceDocumentId: input.sourceDocumentId,
+        officialId,
+        sourceDocumentId: normalizedSourceDocumentId ?? undefined,
         ...promise
       });
     }
@@ -87,4 +93,22 @@ export function getPromiseStore(): PromiseStore {
     ? new PostgresPromiseStore(connectionString)
     : new InMemoryPromiseStore();
   return singleton;
+}
+
+const OFFICIAL_SLUG_TO_UUID: Readonly<Record<string, string>> = {
+  "zohran-mamdani": "7fcd6c31-8703-4ece-a4a0-4fa1b2d9a800",
+  "london-breed": "7fcd6c31-8703-4ece-a4a0-4fa1b2d9a801",
+  "eric-adams": "7fcd6c31-8703-4ece-a4a0-4fa1b2d9a802"
+};
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function toOfficialUuid(input: string): string | null {
+  if (UUID_REGEX.test(input)) return input;
+  return OFFICIAL_SLUG_TO_UUID[input] ?? null;
+}
+
+function toOptionalUuid(input?: string): string | null {
+  if (!input) return null;
+  return UUID_REGEX.test(input) ? input : null;
 }

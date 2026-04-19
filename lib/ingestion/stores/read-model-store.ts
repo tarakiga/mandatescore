@@ -183,13 +183,115 @@ class PostgresReadModelStore implements ReadModelStore {
   }
 
   public async listHomeTrending(): Promise<readonly HomeTrendingReadModel[]> {
-    return [];
+    const { rows } = await this.pool.query<{
+      official_id: string;
+      official_slug: string;
+      official_name: string;
+      office: string;
+      country_code: string | null;
+      mandate_score: number;
+      trend_score: number;
+      kept_count: number;
+      in_progress_count: number;
+      broken_count: number;
+      data_last_updated_label: string;
+      projection_version: string;
+      refreshed_at: string;
+    }>(
+      `
+      SELECT official_id, official_slug, official_name, office, country_code, mandate_score, trend_score,
+             kept_count, in_progress_count, broken_count, data_last_updated_label, projection_version, refreshed_at
+      FROM home_trending_view
+      ORDER BY trend_score DESC NULLS LAST
+      `
+    );
+    return rows.map((row) => ({
+      officialId: row.official_id,
+      officialSlug: row.official_slug,
+      officialName: row.official_name,
+      office: row.office,
+      countryCode: row.country_code ?? undefined,
+      mandateScore: Number(row.mandate_score),
+      trendScore: Number(row.trend_score),
+      keptCount: Number(row.kept_count),
+      inProgressCount: Number(row.in_progress_count),
+      brokenCount: Number(row.broken_count),
+      dataLastUpdatedLabel: row.data_last_updated_label,
+      projectionVersion: row.projection_version,
+      refreshedAt: row.refreshed_at
+    }));
   }
   public async listHomeUpdates(): Promise<readonly HomeUpdatesReadModel[]> {
-    return [];
+    const { rows } = await this.pool.query<{
+      id: string;
+      official_id: string;
+      official_name: string;
+      promise_title: string;
+      status_label: string;
+      updated_at_label: string;
+      projection_version: string;
+      refreshed_at: string;
+    }>(
+      `
+      SELECT id, official_id, official_name, promise_title, status_label, updated_at_label, projection_version, refreshed_at
+      FROM home_updates_view
+      ORDER BY refreshed_at DESC NULLS LAST
+      `
+    );
+    return rows.map((row) => ({
+      id: row.id,
+      officialId: row.official_id,
+      officialName: row.official_name,
+      promiseTitle: row.promise_title,
+      statusLabel: row.status_label,
+      updatedAtLabel: row.updated_at_label,
+      projectionVersion: row.projection_version,
+      refreshedAt: row.refreshed_at
+    }));
   }
   public async listOfficialProfiles(): Promise<readonly OfficialProfileReadModel[]> {
-    return [];
+    const { rows } = await this.pool.query<{
+      official_id: string;
+      official_slug: string;
+      official_name: string;
+      office: string;
+      country_code: string | null;
+      jurisdiction: string;
+      mandate_score: number;
+      kept_count: number;
+      in_progress_count: number;
+      broken_count: number;
+      last_evidence_sync_label: string;
+      data_last_updated_label: string;
+      source_mode: "live" | "fallback";
+      projection_version: string;
+      refreshed_at: string;
+    }>(
+      `
+      SELECT official_id, official_slug, official_name, office, country_code, jurisdiction,
+             mandate_score, kept_count, in_progress_count, broken_count,
+             last_evidence_sync_label, data_last_updated_label, source_mode, projection_version, refreshed_at
+      FROM official_profile_view
+      ORDER BY refreshed_at DESC NULLS LAST
+      `
+    );
+    return rows.map((row) => ({
+      officialId: row.official_id,
+      officialSlug: row.official_slug,
+      officialName: row.official_name,
+      office: row.office,
+      countryCode: row.country_code ?? undefined,
+      jurisdiction: row.jurisdiction,
+      mandateScore: Number(row.mandate_score),
+      keptCount: Number(row.kept_count),
+      inProgressCount: Number(row.in_progress_count),
+      brokenCount: Number(row.broken_count),
+      lastEvidenceSyncLabel: row.last_evidence_sync_label,
+      dataLastUpdatedLabel: row.data_last_updated_label,
+      sourceMode: row.source_mode,
+      projectionVersion: row.projection_version,
+      refreshedAt: row.refreshed_at
+    }));
   }
 }
 

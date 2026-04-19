@@ -13,6 +13,9 @@ function Invoke-SqlFile {
 
     Write-Host "Applying: $FilePath"
     & psql $Conn -v ON_ERROR_STOP=1 -f $FilePath | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+        throw "psql failed while applying: $FilePath"
+    }
 }
 
 function Invoke-SqlScalar {
@@ -22,6 +25,9 @@ function Invoke-SqlScalar {
     )
 
     $result = & psql $Conn -v ON_ERROR_STOP=1 -t -A -c $Sql
+    if ($LASTEXITCODE -ne 0) {
+        throw "psql failed while executing scalar query."
+    }
     return ($result | Out-String).Trim()
 }
 
