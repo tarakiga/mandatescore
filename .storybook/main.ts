@@ -9,9 +9,6 @@ const config: StorybookConfig = {
     "@storybook/addon-docs",
     "@storybook/addon-onboarding"
   ],
-  "framework": "@storybook/nextjs-vite",
-  "docs": {
-    "autodocs": "tag"
-  }
+  "framework": "@storybook/nextjs-vite"
 };
 export default config;

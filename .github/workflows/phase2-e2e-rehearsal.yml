@@ -1,0 +1,60 @@
+name: Phase2 E2E Rehearsal
+
+on:
+  pull_request:
+    paths:
+      - "app/api/ingestion/**"
+      - "lib/ingestion/**"
+      - "db/migrations/**"
+      - "scripts/phase2-e2e-rehearsal.ps1"
+      - ".github/workflows/phase2-e2e-rehearsal.yml"
+  workflow_dispatch:
+
+jobs:
+  phase2-e2e-rehearsal:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mandatescore_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d mandatescore_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mandatescore_ci
+      INGESTION_DATA_STORE: postgres
+      INGESTION_EVENT_STORE: postgres
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U postgres -d mandatescore_ci && exit 0
+            sleep 2
+          done
+          echo "Postgres did not become ready in time."
+          exit 1
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run Phase 2 rehearsal script
+        shell: pwsh
+        run: |
+          ./scripts/phase2-e2e-rehearsal.ps1

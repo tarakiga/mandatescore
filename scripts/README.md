@@ -112,3 +112,33 @@ $env:DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/mandatescore_
 
 Reference runbook:
 - `docs/operations/migration-runbook.md`
+
+## 7) Phase 2 E2E Rehearsal
+
+Use this to validate status-classifier -> publish-refresh -> read-model/metrics flow in Postgres mode.
+
+Prerequisites:
+- `DATABASE_URL` set to a disposable Postgres DB
+- `psql` in PATH
+
+```powershell
+$env:DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/mandatescore_ci"
+.\scripts\phase2-e2e-rehearsal.ps1
+```
+
+Reference:
+- `docs/operations/phase-2-e2e-rehearsal.md`
+
+## 8) Phase 2 Staging Quickcheck
+
+Fast API-level verification against a running app instance:
+
+```powershell
+.\scripts\phase2-staging-quickcheck.ps1 -BaseUrl http://localhost:3000
+```
+
+This checks:
+- `status-classify`
+- `publish-refresh`
+- `read-models`
+- `metrics`

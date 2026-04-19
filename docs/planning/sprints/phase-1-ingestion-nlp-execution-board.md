@@ -29,6 +29,40 @@ This board is mapped to the existing sprint format used in:
 - `EPIC-IN-11` Parsing + Extraction: `MS-IN-104`, `MS-IN-105`, `MS-IN-106`
 - `EPIC-IN-12` Review + Publish Foundation: `MS-IN-107`, `MS-IN-108`
 
+## Live Status Tracker
+
+- Last Updated: `2026-04-18 (Phase 2 staging quickcheck update)`
+- Update Rule: every completed implementation task must update this section before handoff.
+
+| Story | Status | Verification |
+|---|---|---|
+| `MS-IN-101` | `Done` | `001`-`012` migrations + down scripts implemented in `db/migrations` |
+| `MS-IN-102` | `Done` | queue contracts created in `docs/operations/queue-topic-contracts.json` and runtime contract validator added |
+| `MS-IN-103` | `Done` | ingestion service skeletons + health endpoint + event envelope + publisher/DLQ path implemented |
+| `MS-IN-104` | `Done` | parser service + route + tests + pluggable parsed block persistence (`lib/ingestion/stores/parsed-block-store.ts`) |
+| `MS-IN-105` | `Done` | extraction route persists promises with confidence/model metadata via `lib/ingestion/stores/promise-store.ts` |
+| `MS-IN-106` | `Done` | evidence generation and provisional link candidates implemented in `evidence-linker-service` + `/api/ingestion/evidence-link` |
+| `MS-IN-107` | `Done` | review APIs + async store (in-memory/postgres) + decision event publishing/audit trail path |
+| `MS-IN-108` | `Done` | acceptance evidence pack + go/no-go recommendation in `docs/operations/phase-1-acceptance-evidence-pack.md` |
+
+### Phase 2 Kickoff Snapshot
+
+| Stream | Status | Verification |
+|---|---|---|
+| `Status Classifier Service` | `Done (Scaffolded)` | `lib/ingestion/services/status-classifier-service.ts` + tests |
+| `Status History Persistence` | `Done (Scaffolded)` | `lib/ingestion/stores/status-history-store.ts` (postgres/in-memory) |
+| `Status Classify API` | `Done (Scaffolded)` | `/api/ingestion/status-classify` with publish + review routing |
+| `Score/Trend Recompute Hooks` | `Done (Scaffolded)` | `lib/ingestion/services/score-trend-service.ts` + event publishing |
+| `Publisher Read Model Refresh Trigger` | `Done (Scaffolded)` | `publish.refresh_requested.v1` emitted in status-classify route |
+| `ID Integrity Pass` | `Done` | `promise_id` now uses persisted DB IDs in evidence-link and status-classify flows |
+| `Kept Guardrail Enforcement` | `Done` | status classifier enforces credibility/confidence threshold before `kept`; violations route to `policy_guardrail` review |
+| `Read Model Publisher Worker` | `Done` | refresh worker + `/api/ingestion/publish-refresh` + `/api/ingestion/read-models` + tests + passing validation |
+| `Ops Visibility Metrics` | `Done` | `/api/ingestion/metrics` exposes DLQ rate, classifier confidence buckets, publish latency p95 |
+| `Postgres E2E Rehearsal Path` | `Done` | one-command `scripts/phase2-e2e-rehearsal.ps1` + focused rehearsal test + runbook |
+| `Phase 2 CI Rehearsal Gate` | `Done` | GitHub Actions workflow executes rehearsal script against postgres service on PRs |
+| `Phase 2 Release Checklist` | `Done` | formal release-readiness checklist added with env/migration/pipeline/observability/cutover gates |
+| `Phase 2 Staging Quickcheck` | `Done` | `scripts/phase2-staging-quickcheck.ps1` verifies classify/refresh/read-models/metrics in ~10 minutes |
+
 ## Story Backlog (Jira/Linear Ready)
 
 ### Story: MS-IN-101
@@ -228,6 +262,58 @@ This board is mapped to the existing sprint format used in:
 - `MS-IN-101`..`MS-IN-108` closed and accepted.
 - All Phase 1 gates passed.
 - Hand-off checklist for Phase 2 (status classifier + scoring) approved.
+
+## This Week Implementation Plan (Execution-Ready)
+
+### Monday
+
+- **Owner:** Backend Engineer
+- **Work:** finalize `MS-IN-101` migration runner compatibility and confirm up/down replay output logs.
+- **Definition of Done:** migration smoke run passes on fresh DB and replay DB; artifacts attached in PR.
+
+- **Owner:** DevOps/SRE
+- **Work:** lock `MS-IN-102` CI schema-validation wiring for queue contracts.
+- **Definition of Done:** malformed event fixture fails CI; valid fixture passes.
+
+### Tuesday
+
+- **Owner:** Backend Engineer
+- **Work:** complete `MS-IN-103` service skeletons (`source-discovery`, `fetcher`, `parser`) with health/readiness.
+- **Definition of Done:** each service boots and returns healthy status in local compose/dev run.
+
+- **Owner:** Data/NLP Engineer
+- **Work:** start `MS-IN-104` parser adapters (HTML + PDF fallback) and persist blocks.
+- **Definition of Done:** parsed blocks written to `parsed_document_block` for pilot fixtures.
+
+### Wednesday
+
+- **Owner:** Data/NLP Engineer
+- **Work:** continue `MS-IN-104`; add parse quality metric capture.
+- **Definition of Done:** parser success report generated with baseline quality numbers.
+
+- **Owner:** Backend Engineer
+- **Work:** shared event envelope library integration into `MS-IN-103`.
+- **Definition of Done:** emitted events include `event_id`, `trace_id`, `occurred_at`, `schema_version`.
+
+### Thursday
+
+- **Owner:** Data/NLP Engineer
+- **Work:** begin `MS-IN-105` promise extraction v1 pipeline (`promise_key`, confidence, rationale).
+- **Definition of Done:** extraction writes rows to `promise` with model version metadata.
+
+- **Owner:** Backend Engineer + QA
+- **Work:** start `MS-IN-107` review API endpoints and state transitions.
+- **Definition of Done:** open task fetch + decision writeback tested via API smoke tests.
+
+### Friday
+
+- **Owner:** Data/NLP Engineer
+- **Work:** confidence threshold routing (`<0.75`) to review queue for `MS-IN-105`.
+- **Definition of Done:** low-confidence extraction creates `review_queue` records with reason and priority.
+
+- **Owner:** QA/Automation + Tech Lead/PM
+- **Work:** start `MS-IN-108` acceptance evidence matrix.
+- **Definition of Done:** criteria-to-proof checklist exists for every Phase 1 gate with owners assigned.
 
 ## Jira/Linear Import Table (CSV-Friendly)
 
